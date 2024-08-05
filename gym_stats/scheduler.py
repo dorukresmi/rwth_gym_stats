@@ -1,4 +1,4 @@
-from data_store import DataStore
+from gym_stats.data_store import DataStore
 import schedule
 import time
 

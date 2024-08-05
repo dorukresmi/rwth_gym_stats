@@ -7,6 +7,7 @@ from datetime import datetime
 import keras_ocr
 import glob
 import os
+import base64
 
 class VisitorCounter:
     def __init__(self, driver_path):
@@ -19,14 +20,24 @@ class VisitorCounter:
         if not os.path.exists("images_ss"):
             os.makedirs("images_ss")
 
-    def get_and_save_image(self):
+    def get_and_save_image(self) -> str:
         self.driver.get(self.url)
         self.img_element = self.wait.until(EC.visibility_of_element_located((By.XPATH, '//img[@alt="Auslastung aktuell"]')))
         screenshot = self.img_element.screenshot_as_png
-        formatted_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-        with open(f"./images_ss/screenshot_{formatted_datetime}.png", "wb") as f:
+        iso_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        encoded_datetime = self.encode_timestamp(iso_datetime)
+
+        image_path = f"./images_ss/screenshot_{encoded_datetime}.png"
+
+        with open(image_path, "wb") as f:
             f.write(screenshot)
-        return formatted_datetime
+        return image_path, iso_datetime
+    
+    @staticmethod
+    def encode_timestamp(timestamp):
+        encoded_bytes = base64.urlsafe_b64encode(timestamp.encode('utf-8'))
+        encoded_str = encoded_bytes.decode('utf-8')
+        return encoded_str
 
     def reconnect_driver(self):
         self.driver.quit()
@@ -42,11 +53,8 @@ class VisitorCounter:
         image = keras_ocr.tools.read(latest_image)
         recognitions = pipeline.recognize(images=[image])
 
-        print(recognitions)
-        # Extract the recognized text
         recognized_text = recognitions[0][0][0]
 
-        # Replace occurrences of 'o' with '0' in the recognized text
         recognized_text = recognized_text.replace('o', '0')
         recognized_text = recognized_text.replace('O', '0')
         recognized_text = recognized_text.replace('z', '7')
@@ -63,7 +71,6 @@ class VisitorCounter:
         recognized_text = recognized_text.replace('q', '9')
 
 
-        # Extract the recognized number (assuming it's the only number in the text)
         recognized_number = int(''.join(filter(str.isdigit, recognized_text)))
 
         return recognized_number

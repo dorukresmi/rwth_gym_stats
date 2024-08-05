@@ -16,7 +16,7 @@ class DataStore:
         self.cursor.execute(f'''CREATE TABLE IF NOT EXISTS {self.table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_path TEXT,
-            recognized_number TEXT,
+            recognized_number INTEGER,
             timestamp DATETIME
         );''')
         self.conn.commit()

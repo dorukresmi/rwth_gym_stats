@@ -1,8 +1,8 @@
 import os
 import logging
-import sys
+import time
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -25,9 +25,17 @@ def main():
     db_name = "gym_stats.db"
     table_name = "gym_stats_table"
 
-    visitor_counter = VisitorCounter(driver_path_ff)
-    scheduler = Scheduler(visitor_counter, db_name, table_name)
-    scheduler.start() 
+    while True:
+        try:
+            visitor_counter = VisitorCounter(driver_path_ff)
+            scheduler = Scheduler(visitor_counter, db_name, table_name)
+            scheduler.start()
+        except ConnectionError as conn_err:
+            logging.error(f"Connection error occurred: {conn_err}")
+            time.sleep(900)
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            break
 
 if __name__ == "__main__":
     main()

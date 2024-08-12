@@ -1,13 +1,20 @@
 import sqlite3
-
-
+import os
 
 class DataStore:
-    def __init__(self, db_name, table_name):
+    def __init__(self, db_name, table_name, db_path=None):
         
+        if db_path is not None:
+            self.db_path = db_path
+        else:
+            self.db_path = "data/"
+
+        if not os.path.exists(self.db_path):
+            os.makedirs(self.db_path)
+
         self.db_name = db_name
         self.table_name = table_name
-        self.conn = sqlite3.connect(db_name)
+        self.conn = sqlite3.connect(os.path.join(self.db_path, db_name))
         self.cursor = self.conn.cursor()
         self.initialize_db()
 

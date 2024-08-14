@@ -24,7 +24,15 @@ class Scheduler:
         self.visitor_counter.close_driver()
         number = self.visitor_counter.recognize_number_from_image()
         store = DataStore(self.db_name, self.table_name)
-        store.add_data(image_path, number, timestamp)
+
+        year = timestamp[:4]
+        month = timestamp[5:7]
+        day = timestamp[8:10]
+        week = time.strftime("%W", time.strptime(timestamp, "%Y-%m-%d %H:%M:%S"))
+        weekday = time.strftime("%w", time.strptime(timestamp, "%Y-%m-%d %H:%M:%S"))
+        hour = timestamp[11:13]
+
+        store.add_data(image_path, number, timestamp, year, month, day, week, weekday, hour)
         store.close()
     
     def start(self, interval=1):

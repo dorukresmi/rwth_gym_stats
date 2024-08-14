@@ -18,19 +18,24 @@ class DataStore:
         self.cursor = self.conn.cursor()
         self.initialize_db()
 
-
     def initialize_db(self):
         self.cursor.execute(f'''CREATE TABLE IF NOT EXISTS {self.table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_path TEXT,
-            recognized_number INTEGER,
-            timestamp DATETIME
+            recognized_number INTEGER DEFAULT 0,
+            timestamp DATETIME,
+            year INTEGER,
+            month INTEGER,
+            day_of_month INTEGER,
+            week INTEGER,
+            weekday INTEGER CHECK(weekday BETWEEN 0 AND 6),
+            hour INTEGER
         );''')
         self.conn.commit()
     
-    def add_data(self, image_path, recognized_number, timestamp):
-        self.cursor.execute(f"INSERT INTO {self.table_name} (image_path, recognized_number, timestamp) VALUES (?, ?, ?)",
-                            (image_path, recognized_number, timestamp))
+    def add_data(self, image_path, recognized_number, timestamp, year: int, month: int, day: int, week: int, weekday: int, hour: int):
+        self.cursor.execute(f"INSERT INTO {self.table_name} (image_path, recognized_number, timestamp, year, month, day_of_month, week, weekday, hour) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (image_path, recognized_number, timestamp, year, month, day, week, weekday, hour))
         self.conn.commit()
 
     def get_custom_query(self, query):
@@ -46,7 +51,7 @@ class DataStore:
             self.cursor.execute(query)
         
         return self.cursor.fetchall()
-    
+
     def get_only_numbers_and_timestamps(self, since=None):
         if since:
             query = f"SELECT recognized_number, timestamp FROM {self.table_name} WHERE timestamp >= ?"
@@ -56,6 +61,9 @@ class DataStore:
             self.cursor.execute(query)
         
         return self.cursor.fetchall()
+    
+    #TODO
+    #add more methods to get data from the database
 
     def close(self):
         self.conn.close()

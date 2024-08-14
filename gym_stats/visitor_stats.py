@@ -7,6 +7,9 @@ class VisitorStatistics:
     def get_statistics(self):
         return self.data_store.get_only_numbers_and_timestamps()
     
+    def get_all_data(self):
+        return self.data_store.get_data()
+    
     def run_query(self, query):
         return self.data_store.get_custom_query(query)
 

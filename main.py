@@ -22,7 +22,12 @@ def main():
     #TODO
     #replace with the global driver path
     #maybe take it as an argument
-    driver_path_ff = r".\geckodriver.exe"
+
+    if os.name == 'nt':
+        driver_path_ff = r".\geckodriver.exe"
+    elif os.name == 'posix':
+        driver_path_ff = r"./geckodriver"
+
     db_name = "gym_stats.db"
     table_name = "gym_stats_table"
     

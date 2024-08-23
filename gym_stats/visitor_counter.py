@@ -12,14 +12,15 @@ import os
 import base64
 
 class VisitorCounter:
-    def __init__(self, driver_path):
-        options = Options()
-        options.headless = True
-        self.driver_path = driver_path
-        self.service = Service(self.driver_path)
-        self.driver = webdriver.Firefox(service=self.service, options=options)
+    def __init__(self):
+        self.options = Options()
+        self.options.headless = True
+        profile_path = "/tmp/firefox_profile"
+        self.options.set_preference("profile", profile_path)
+        self.service = Service(executable_path="/usr/local/bin/geckodriver")
+        self.driver = webdriver.Firefox(service=self.service, options=self.options)
         self.url = "https://buchung.hsz.rwth-aachen.de/angebote/aktueller_zeitraum/_Auslastung.html"
-        self.wait = WebDriverWait(self.driver, 10)
+        self.wait = None
         self.img_element = None
         if not os.path.exists("images_ss"):
             os.makedirs("images_ss")

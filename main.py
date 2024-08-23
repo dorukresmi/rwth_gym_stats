@@ -3,9 +3,6 @@ import logging
 import time
 import threading
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
@@ -19,22 +16,13 @@ from gym_stats.scheduler import Scheduler
 
 def main():
 
-    #TODO
-    #replace with the global driver path
-    #maybe take it as an argument
-
-    if os.name == 'nt':
-        driver_path_ff = r".\geckodriver.exe"
-    elif os.name == 'posix':
-        driver_path_ff = r"./geckodriver"
-
     db_name = "gym_stats.db"
     table_name = "gym_stats_table"
     
     try:
         while True:
             try:
-                visitor_counter = VisitorCounter(driver_path_ff)
+                visitor_counter = VisitorCounter()
                 scheduler = Scheduler(visitor_counter, db_name, table_name)
 
                 scheduler_thread = threading.Thread(target=scheduler.start)
@@ -45,23 +33,16 @@ def main():
 
                     if command == 'pause':
                         scheduler.pause()
-                        logging.info("Scheduler paused.")
                     elif command == 'resume':
                         scheduler.resume()
-                        logging.info("Scheduler resumed.")
                     elif command == 'stop':
                         scheduler.stop()
                         scheduler_thread.join()
-                        logging.info("Scheduler stopped.")
                         break
                     elif command == 'exit':
                         scheduler.stop()
                         scheduler_thread.join()
-                        logging.info("Exiting the application.")
-                        return
-                    else:
-                        logging.warning("Unknown command. Please enter 'pause', 'resume', 'stop', or 'exit'.")
-            
+                        return          
             except ConnectionError as conn_err:
                 logging.error(f"Connection error occurred: {conn_err}")
                 time.sleep(900)

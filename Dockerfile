@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y build-essential cmake pkg-config libjpe
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     wget \
+    git \
     build-essential \
     libssl-dev \
     zlib1g-dev \
@@ -70,13 +71,18 @@ ENV MOZ_HEADLESS=1
 
 WORKDIR /app
 
-COPY ./gym_stats ./gym_stats
-COPY main.py .
-COPY requirements_linux.txt .
+RUN git clone https://github.com/dorukresmi/rwth_gym_stats /app
+
+# COPY ./gym_stats ./gym_stats
+# COPY main.py .
+# COPY requirements_linux.txt .
 
 RUN python3.11 -m venv .venv && \
     /app/.venv/bin/pip install --upgrade pip && \
     /app/.venv/bin/pip install --retries=3 -v -r requirements_linux.txt
 
-#CMD ["/app/.venv/bin/python", "main.py"]
-ENTRYPOINT ["/bin/bash"]
+RUN mkdir -p /app/data && chmod 755 /app/data
+VOLUME ["/app/data"]
+
+CMD ["/app/.venv/bin/python", "main.py"]
+#ENTRYPOINT ["/bin/bash"]
